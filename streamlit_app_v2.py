@@ -7,6 +7,9 @@ import hashlib
 import os
 import json
 import matplotlib.pyplot as plt
+import os
+
+GROQ_KEY = os.environ.get("GROQ_API_KEY") or st.secrets.get("GROQ_API_KEY")
 
 # ----------------------------
 # User Management Helpers
@@ -146,7 +149,14 @@ if uploaded_file:
 
     # Init LLM + SmartDataframe
     #llm = GroqLLM(api_key= "xxxxxx")
-    llm = GroqLLM(api_key=st.secrets["GROQ_API_KEY"])
+    #llm = GroqLLM(api_key=st.secrets["GROQ_API_KEY"])
+    # prefer env var (set from Secret Manager), fallback to st.secrets (local dev)
+    
+    if not GROQ_KEY:
+        st.error("GROQ_API_KEY not set. Set in Secret Manager or st.secrets for local dev.")
+        st.stop()
+
+    llm = GroqLLM(api_key=GROQ_KEY)
     sdf = SmartDataframe(df, config={"llm": llm})
 
     # ----------------------------
